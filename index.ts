@@ -1,10 +1,11 @@
-import { ApolloServer, ApolloServerOptions } from '@apollo/server';
+import { ApolloServer } from '@apollo/server';
 import typeDefs from './src/TypeDefs/typeDefs';
 import resolvers from './src/Resolvers';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import sequelize from './src/Database';
 import UserAPI from 'src/Datasources/usersApi';
 import { ApolloContext } from 'src/types';
+import TeamAPI from 'src/Datasources/teamsApi';
 
 const server = new ApolloServer<ApolloContext>({
   typeDefs,
@@ -22,6 +23,7 @@ const startServer = async () => {
         return {
           dataSources: {
             UserAPI: new UserAPI(),
+            TeamAPI: new TeamAPI(),
           },
         };
       },
