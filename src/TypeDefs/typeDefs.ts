@@ -23,11 +23,69 @@ const typeDefs = `#graphql
     teamName: String,
     teamShorthand: String,
     matches: [String],
-    lineup: Lineup
+    lineup: Lineup,
+    updatedAt: String
   }
+
+input GoalInput {
+  period: Int!
+  timestamp: String!
+  scorerId: String!
+  assistId: [String!]
+}
+
+input PenaltyInput {
+  period: Int!
+  timestamp: String!
+  type: String
+  minutes: Int!
+  additionalMinutes: Int
+  targetPlayerId: String!
+}
+
+input MatchInput {
+  date: String!
+  location: String!
+  referees: [String!]!
+  homeTeam: String!
+  awayTeam: String!
+  homeTeamScore: Int!
+  awayTeamScore: Int!
+  goals: [GoalInput!]!
+  penalties: [PenaltyInput!]
+}
+  type Goal {
+  id: String
+  period: Int!
+  timestamp: String!
+  scorerId: String
+  assistId: [String!]!
+}
+  type Penalty {
+  type: String
+  minutes: Int
+  additionalMinutes: Int
+  targetPlayerId: String
+  id: String!
+  period: Int!
+  timestamp: String!
+}
+type Match {
+  id: String!
+  date: String!
+  location: String!
+  referees: [String!]!
+  homeTeam: String!
+  awayTeam: String!
+  homeTeamScore: Int!
+  awayTeamScore: Int!
+  goals: [Goal!]!
+  penalties: [Penalty!]
+}
   type Query {
     getUsers: [User]
-    getTeams: [Team]
+    getTeams(teamName: String): [Team]
+    getMatches: [Match]
   }
   type Mutation {
     createUser(
@@ -39,7 +97,8 @@ const typeDefs = `#graphql
     createTeam(
       teamName: String
       teamShorthand: String
-    ): Boolean
+    ): Team
+    createMatch(input: MatchInput): Match
   }
 
 `;

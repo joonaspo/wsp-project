@@ -6,6 +6,7 @@ import sequelize from './src/Database';
 import UserAPI from 'src/Datasources/usersApi';
 import { ApolloContext } from 'src/types';
 import TeamAPI from 'src/Datasources/teamsApi';
+import MatchAPI from 'src/Datasources/matchesApi';
 
 const server = new ApolloServer<ApolloContext>({
   typeDefs,
@@ -24,6 +25,7 @@ const startServer = async () => {
           dataSources: {
             UserAPI: new UserAPI(),
             TeamAPI: new TeamAPI(),
+            MatchAPI: new MatchAPI(),
           },
         };
       },

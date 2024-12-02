@@ -8,7 +8,7 @@ import {
 } from 'sequelize';
 import sequelize from 'src/Database';
 import Team from './team';
-import { IMatchEvent } from 'src/types';
+import { IGoalEvent, IPenaltyEvent } from 'src/types';
 
 class Match extends Model<
   InferAttributes<Match>,
@@ -20,7 +20,10 @@ class Match extends Model<
   declare awayTeam: ForeignKey<Team['id']>;
   declare homeTeamScore: number;
   declare awayTeamScore: number;
-  declare matchEvents: [IMatchEvent];
+  declare penalties: IPenaltyEvent[];
+  declare goals: IGoalEvent[];
+  declare referees: string[];
+  declare location: string;
   declare updatedAt: CreationOptional<Date>;
 }
 
@@ -52,8 +55,20 @@ Match.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    matchEvents: {
+    penalties: {
       type: DataTypes.JSON,
+      allowNull: false,
+    },
+    goals: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    referees: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    location: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     updatedAt: DataTypes.DATE,
@@ -64,5 +79,8 @@ Match.init(
     tableName: 'matches',
   },
 );
+
+Match.belongsTo(Team, { as: 'homeTeamDetails', foreignKey: 'homeTeam' });
+Match.belongsTo(Team, { as: 'awayTeamDetails', foreignKey: 'awayTeam' });
 
 export default Match;

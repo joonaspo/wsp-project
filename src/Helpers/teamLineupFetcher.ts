@@ -1,5 +1,5 @@
 import { ILineUp, IPlayer } from 'src/types';
-
+import { v4 as uuid } from 'uuid';
 interface IPlayerApiResponse {
   id: number;
   headshot: string;
@@ -43,7 +43,7 @@ const mapPlayers = (
   teamShorthand: string,
 ): IPlayer[] => {
   return playersArray.map((player) => ({
-    id: String(player.id),
+    id: uuid(),
     teamShorthand: teamShorthand,
     firstName: player.firstName.default,
     lastName: player.lastName.default,

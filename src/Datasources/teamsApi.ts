@@ -7,8 +7,9 @@ export type teamObject = {
 };
 
 class TeamAPI {
-  async getAllTeams() {
-    const teams = await Team.findAll();
+  async getAllTeams(condition: any) {
+    const teams = await Team.findAll({ where: condition });
+    console.log(condition);
     return teams;
   }
   async getTeamById(id: string) {
@@ -16,13 +17,19 @@ class TeamAPI {
     return team;
   }
   async createTeam(teamObject: teamObject) {
+    const existingTeam = await Team.findOne({
+      where: { teamShorthand: teamObject.teamShorthand },
+    });
+    if (existingTeam !== null) {
+      throw new Error('Team already exists!');
+    }
     const playerData = await fetchTeamLineup(teamObject.teamShorthand);
     const teamToBeCreated = {
       ...teamObject,
       lineup: playerData,
     };
-    await Team.create(teamToBeCreated);
-    console.log(playerData);
+    const team = await Team.create(teamToBeCreated);
+    return team;
   }
 }
 
