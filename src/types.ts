@@ -1,12 +1,6 @@
 import MatchAPI from './Datasources/matchesApi';
-import TeamAPI from './Datasources/teamsApi';
-import UserAPI from './Datasources/usersApi';
-import Match from './Models/match';
-import Team from './Models/team';
 
 export interface DataSources {
-  UserAPI: UserAPI;
-  TeamAPI: TeamAPI;
   MatchAPI: MatchAPI;
 }
 
@@ -46,14 +40,16 @@ export enum EPenalties {
 
 export interface IPlayer {
   id: string;
-  teamShorthand: string;
   firstName: string;
   lastName: string;
   birthDate: string;
   country: string;
   sweaterNumber: number;
   position: string;
+  teamId: string;
 }
+
+export type INewPlayer = Omit<IPlayer, 'id'>;
 
 export interface ILineUp {
   forwards: IPlayer[];
@@ -65,23 +61,18 @@ export interface IMatchEvent {
   id: string;
   period: number;
   timestamp: string;
+  matchId: string;
 }
-export interface IPenaltyEvent extends IMatchEvent {
+export interface IPenalty extends IMatchEvent {
   type: EPenalties;
   minutes: number;
   additionalMinutes?: number;
-  targetPlayerId: string;
+  penalizedPlayer: string;
 }
 
-export interface IGoalEvent extends IMatchEvent {
-  scorerId: string;
-  assistId?: string[];
+export interface IGoal extends IMatchEvent {
+  scorer: string;
+  assist?: string[];
+  powerPlay: boolean;
+  shortHanded: boolean;
 }
-
-export interface IPopulatedMatch extends Match {
-  homeTeamDetails: Team;
-  awayTeamDetails: Team;
-}
-
-export type INewGoalEvent = Omit<IGoalEvent, 'id'>;
-export type INewPenaltyEvent = Omit<IPenaltyEvent, 'id'>;

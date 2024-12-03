@@ -3,9 +3,7 @@ import typeDefs from './src/TypeDefs/typeDefs';
 import resolvers from './src/Resolvers';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import sequelize from './src/Database';
-import UserAPI from 'src/Datasources/usersApi';
 import { ApolloContext } from 'src/types';
-import TeamAPI from 'src/Datasources/teamsApi';
 import MatchAPI from 'src/Datasources/matchesApi';
 
 const server = new ApolloServer<ApolloContext>({
@@ -17,14 +15,13 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected successfully.');
+    // setting force to "true" nukes the DB!
     await sequelize.sync({ force: false });
     const { url } = await startStandaloneServer(server, {
       listen: { port: 4000 },
       context: async () => {
         return {
           dataSources: {
-            UserAPI: new UserAPI(),
-            TeamAPI: new TeamAPI(),
             MatchAPI: new MatchAPI(),
           },
         };

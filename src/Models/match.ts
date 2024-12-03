@@ -1,14 +1,12 @@
 import {
   CreationOptional,
   DataTypes,
-  ForeignKey,
   InferAttributes,
   InferCreationAttributes,
   Model,
 } from 'sequelize';
 import sequelize from 'src/Database';
-import Team from './team';
-import { IGoalEvent, IPenaltyEvent } from 'src/types';
+import { IGoal, IPenalty } from 'src/types';
 
 class Match extends Model<
   InferAttributes<Match>,
@@ -16,12 +14,12 @@ class Match extends Model<
 > {
   declare id: CreationOptional<string>;
   declare date: string;
-  declare homeTeam: ForeignKey<Team['id']>;
-  declare awayTeam: ForeignKey<Team['id']>;
+  declare homeTeam: string;
+  declare awayTeam: string;
   declare homeTeamScore: number;
   declare awayTeamScore: number;
-  declare penalties: IPenaltyEvent[];
-  declare goals: IGoalEvent[];
+  declare penalties: IPenalty[];
+  declare goals: IGoal[];
   declare referees: string[];
   declare location: string;
   declare updatedAt: CreationOptional<Date>;
@@ -36,15 +34,15 @@ Match.init(
       allowNull: false,
     },
     date: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     homeTeam: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     awayTeam: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     homeTeamScore: {
@@ -79,8 +77,5 @@ Match.init(
     tableName: 'matches',
   },
 );
-
-Match.belongsTo(Team, { as: 'homeTeamDetails', foreignKey: 'homeTeam' });
-Match.belongsTo(Team, { as: 'awayTeamDetails', foreignKey: 'awayTeam' });
 
 export default Match;

@@ -14,7 +14,7 @@
 
 ##### Subject:
 
-- Create an API service for tracking statistics from NHL matches
+- Create an API service for tracking statistics from (imaginary) regular season NHL games
 
 ##### Framework:
 
@@ -26,8 +26,8 @@
 
 ##### Special features:
 
-- Semi-automated adding of new teams, player data is constructed automatically
-- User can query for different statistics, matches, teams and players
+- Matches are added manually by providing required data
+- User can query for different statistics, including: goals, assists, penalties
 - Detailed match view, featuring goals, assists, penalties etc.
 
 ##### Schedule:
@@ -38,9 +38,61 @@
 
 ### Features
 
-#### Adding new teams
+#### Adding a match event
 
-![](/documentation/images/addingNewTeam.png)
+![](/documentation/images/addingNewMatch.png)
 
-- New team is added if the given **team shorthand** belongs to a team that doesn't already exist, otherwise a corresponding error message is displayed
+- New match is added if the given data is valid, otherwise a corresponding error message is displayed
 - In case no team is found with given shorthand, a corresponding error message is displayed
+
+##### Example match data object
+
+```
+  "input": {
+    "awayTeam": "Boston Bruins",
+    "awayTeamScore": 4,
+    "date": "2024-12-03T19:30:00",
+    "goals": [
+      {
+        "assist": ["David Pastrnak", "Brad Marchand"],
+        "period": 1,
+        "powerPlay": false,
+        "scorer": "Charlie McAvoy",
+        "shortHanded": false,
+        "timestamp": "2024-12-03T19:45:00"
+      }
+    ],
+    "homeTeam": "Toronto Maple Leafs",
+    "homeTeamScore": 3,
+    "location": "Scotiabank Arena",
+    "penalties": [
+      {
+        "additionalMinutes": null,
+        "minutes": 2,
+        "penalizedPlayer": "Auston Matthews",
+        "period": 1,
+        "timestamp": "2024-12-03T19:50:00",
+        "type": "Tripping"
+      },
+    ],
+    "referees": ["Gord Dwyer", "Frederick L'Ecuyer"]
+  },
+```
+
+---
+
+#### Query for match events
+
+##### Get match by ID
+
+![](/documentation/images/getMatchById.png)
+
+- All saved matches can also be queried for at once
+
+---
+
+#### Query for player statistics
+
+##### Example query for most goals, assists and penalty minutes
+
+![](/documentation/images/statistics.png)

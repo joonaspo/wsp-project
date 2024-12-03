@@ -1,37 +1,12 @@
 const typeDefs = `#graphql 
-  type User {
-    displayName: String,
-    username: String
-  }
-  type Player {
-    id: String,
-    teamShorthand: String,
-    firstName: String,
-    lastName: String,
-    birthDate: String,
-    country: String,
-    sweaterNumber: Int,
-    position: String
-  }
-  type Lineup {
-    forwards: [Player],
-    defensemen: [Player],
-    goalies: [Player]
-  }
-  type Team {
-    id: String
-    teamName: String,
-    teamShorthand: String,
-    matches: [String],
-    lineup: Lineup,
-    updatedAt: String
-  }
-
 input GoalInput {
   period: Int!
   timestamp: String!
-  scorerId: String!
-  assistId: [String!]
+  scorer: String!
+  assist: [String]
+  shortHanded: Boolean
+  powerPlay: Boolean
+  record: String
 }
 
 input PenaltyInput {
@@ -40,7 +15,7 @@ input PenaltyInput {
   type: String
   minutes: Int!
   additionalMinutes: Int
-  targetPlayerId: String!
+  penalizedPlayer: String!
 }
 
 input MatchInput {
@@ -51,22 +26,22 @@ input MatchInput {
   awayTeam: String!
   homeTeamScore: Int!
   awayTeamScore: Int!
-  goals: [GoalInput!]!
-  penalties: [PenaltyInput!]
+  goals: [GoalInput]!
+  penalties: [PenaltyInput]
 }
   type Goal {
-  id: String
-  period: Int!
-  timestamp: String!
-  scorerId: String
-  assistId: [String!]!
+    period: Int!
+    timestamp: String!
+    scorer: String!
+    assist: [String]
+    shortHanded: Boolean
+    powerPlay: Boolean
 }
   type Penalty {
   type: String
   minutes: Int
   additionalMinutes: Int
-  targetPlayerId: String
-  id: String!
+  penalizedPlayer: String
   period: Int!
   timestamp: String!
 }
@@ -79,25 +54,29 @@ type Match {
   awayTeam: String!
   homeTeamScore: Int!
   awayTeamScore: Int!
-  goals: [Goal!]!
-  penalties: [Penalty!]
+  goals: [Goal]
+  penalties: [Penalty]
 }
+  type LeadingScorer {
+    name: String!
+    goals: Int!
+  }
+  type LeadingAssist {
+    name: String!
+    assists: Int!
+  }
+    type LeadingPenalties {
+      name: String!
+      penaltyMinutes: Int!
+    }
   type Query {
-    getUsers: [User]
-    getTeams(teamName: String): [Team]
     getMatches: [Match]
+    getMatchByID(id: String): Match
+    getLeadingScorer: LeadingScorer
+    getLeadingAssist: LeadingAssist
+    getMostPenaltyMinutes: LeadingPenalties
   }
   type Mutation {
-    createUser(
-      displayName: String
-      username: String
-      password: String
-      passwordConfirmation: String
-      ): Boolean
-    createTeam(
-      teamName: String
-      teamShorthand: String
-    ): Team
     createMatch(input: MatchInput): Match
   }
 

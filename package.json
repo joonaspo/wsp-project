@@ -16,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "graphql": "^16.9.0",
+    "lodash": "^4.17.21",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5",
     "uuid": "^11.0.3",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/lodash": "^4.17.13",
     "prettier": "^3.3.3",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
