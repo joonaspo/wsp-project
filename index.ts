@@ -5,6 +5,7 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import sequelize from './src/Database/index.js';
 import { ApolloContext } from './src/types.js';
 import MatchAPI from './src/Datasources/matchesApi.js';
+import { PORT } from 'src/Utils/config.js';
 
 const server = new ApolloServer<ApolloContext>({
   typeDefs,
@@ -17,7 +18,7 @@ const startServer = async () => {
     console.log('Database connected successfully.');
     await sequelize.sync({ force: false });
     const { url } = await startStandaloneServer(server, {
-      listen: { port: 4000 },
+      listen: { port: Number(PORT) || 4000 },
       context: async () => {
         return {
           dataSources: {
