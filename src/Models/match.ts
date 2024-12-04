@@ -5,9 +5,10 @@ import {
   InferCreationAttributes,
   Model,
 } from 'sequelize';
-import sequelize from 'src/Database';
-import { IGoal, IPenalty } from 'src/types';
+import sequelize from '../Database/index.js';
+import { IGoal, IPenalty } from '../types.js';
 
+// Using Sequelize's utility types to extract attributes from the model class
 class Match extends Model<
   InferAttributes<Match>,
   InferCreationAttributes<Match>

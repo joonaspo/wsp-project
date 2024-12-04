@@ -69,9 +69,17 @@ type Match {
       name: String!
       penaltyMinutes: Int!
     }
+    type PointsLeader {
+      name: String
+      goals: Int
+      assists: Int
+      total: Int
+    }
   type Query {
     getMatches: [Match]
     getMatchByID(id: String): Match
+    searchMatchEventsByString(query: String!): [Match]
+    getPointsLeader: PointsLeader
     getLeadingScorer: LeadingScorer
     getLeadingAssist: LeadingAssist
     getMostPenaltyMinutes: LeadingPenalties

@@ -1,43 +1,61 @@
-import { inputObject, matchQueryParams } from 'src/Datasources/matchesApi';
-import { ApolloContext } from 'src/types';
+import { inputObject, matchQueryParams } from '../Datasources/matchesApi';
+import { ApolloContext } from '../types';
 
 const resolvers = {
   Query: {
-    getMatches: async (_: any, __: any, { dataSources }: ApolloContext) => {
+    getMatches: async (
+      _: unknown,
+      __: unknown,
+      { dataSources }: ApolloContext,
+    ) => {
       return await dataSources.MatchAPI.getMatches();
     },
     getMatchByID: async (
-      _: any,
+      _: unknown,
       id: matchQueryParams,
       { dataSources }: ApolloContext,
     ) => {
       return await dataSources.MatchAPI.getMatchByID(id);
     },
     getLeadingScorer: async (
-      _: any,
-      __: any,
+      _: unknown,
+      __: unknown,
       { dataSources }: ApolloContext,
     ) => {
       return await dataSources.MatchAPI.getLeadingScorer();
     },
     getLeadingAssist: async (
-      _: any,
-      __: any,
+      _: unknown,
+      __: unknown,
       { dataSources }: ApolloContext,
     ) => {
       return await dataSources.MatchAPI.getMostAssists();
     },
     getMostPenaltyMinutes: async (
-      _: any,
-      __: any,
+      _: unknown,
+      __: unknown,
       { dataSources }: ApolloContext,
     ) => {
       return await dataSources.MatchAPI.getMostPenaltyMinutes();
     },
+    getPointsLeader: async (
+      _: unknown,
+      __: unknown,
+      { dataSources }: ApolloContext,
+    ) => {
+      return await dataSources.MatchAPI.getMostPoints();
+    },
+    searchMatchEventsByString: async (
+      _: unknown,
+      { query }: { query: string },
+      { dataSources }: ApolloContext,
+    ) => {
+      return await dataSources.MatchAPI.searchMatches(query);
+    },
   },
   Mutation: {
     createMatch: async (
-      _: any,
+      _: unknown,
       inputObject: inputObject,
       { dataSources }: ApolloContext,
     ) => {

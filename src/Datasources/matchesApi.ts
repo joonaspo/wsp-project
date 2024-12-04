@@ -1,8 +1,11 @@
 import { GraphQLError } from 'graphql';
-import Match from 'src/Models/match';
-import { EPenalties, IGoal, IPenalty } from 'src/types';
+import Match from '../Models/match.js';
+import { EPenalties, IGoal, IPenalty } from '../types.js';
 import { z } from 'zod';
 import _ from 'lodash';
+import { Op } from 'sequelize';
+
+// Zod validation schemas for penalties, goals and matches
 const penaltySchema = z.object({
   period: z.number().int().positive(),
   timestamp: z.string().refine((date) => !isNaN(Date.parse(date)), {
@@ -67,6 +70,10 @@ interface PenaltyMinutes {
   [offender: string]: number;
 }
 
+interface PointsCount {
+  [player: string]: { goals: number; assists: number };
+}
+
 class MatchAPI {
   async createMatch(matchObject: inputObject) {
     console.log(matchObject);
@@ -94,7 +101,8 @@ class MatchAPI {
       const data = await Match.findAll();
       return data;
     } catch (error) {
-      throw new GraphQLError('No matches found!');
+      console.log(error);
+      throw new GraphQLError('Error getting matches!');
     }
   }
 
@@ -102,9 +110,15 @@ class MatchAPI {
     try {
       const match = await Match.findByPk(params.id);
       console.log(match);
+      if (!match) {
+        throw new GraphQLError(`Match not found with id: ${params.id}!`, {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      }
       return match;
     } catch (error) {
-      throw new GraphQLError('Match not found!');
+      console.log(error);
+      throw new GraphQLError('Error finding match with ID!');
     }
   }
 
@@ -120,8 +134,9 @@ class MatchAPI {
       });
       const maxScorer = _(scorerCount)
         .toPairs()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .maxBy(([_, goals]) => goals);
-      // Loop through all scorers
+
       if (!maxScorer) {
         throw new GraphQLError('Max scorer not found!');
       }
@@ -131,6 +146,7 @@ class MatchAPI {
         goals: maxGoals,
       };
     } catch (error) {
+      console.log(error);
       throw new GraphQLError('Failed to get leading scorer!');
     }
   }
@@ -140,6 +156,7 @@ class MatchAPI {
       const matches = await Match.findAll();
       matches.forEach((match) => {
         match.goals.forEach((goal) => {
+          // If the goal has assists, processing each assister
           if (goal.assist !== undefined && goal.assist?.length > 0) {
             const assist = goal.assist;
             assist?.forEach((a) => {
@@ -151,6 +168,7 @@ class MatchAPI {
 
       const maxAssists = _(assistCounts)
         .toPairs()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .maxBy(([_, assist]) => assist);
 
       if (!maxAssists) {
@@ -162,13 +180,93 @@ class MatchAPI {
         assists: assists,
       };
     } catch (error) {
+      console.log(error);
       throw new GraphQLError('Failed to get leading assists!');
     }
   }
+
+  async getMostShorthandedGoals() {
+    try {
+      const goalsCount: ScorerCount = {};
+      const matches = await Match.findAll();
+      matches.forEach((match) => {
+        match.goals.forEach((goal) => {
+          // Processing only short handed goals
+          if (goal.shortHanded === true) {
+            goalsCount[goal.scorer] = (goalsCount[goal.scorer] || 0) + 1;
+          }
+        });
+      });
+      const maxShorthandedGoals = _(goalsCount)
+        .toPairs()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .maxBy(([_, goal]) => goal);
+      if (!maxShorthandedGoals) {
+        throw new GraphQLError('Leading shorthanded scorer not found!');
+      }
+      const [leadingScorer, goals] = maxShorthandedGoals;
+      return {
+        name: leadingScorer,
+        goals,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new GraphQLError('Failed to get leading shorthanded scorer!');
+    }
+  }
+
+  async getMostPoints() {
+    try {
+      const matches = await Match.findAll();
+      const pointsCount: PointsCount = {};
+      matches.forEach((match) => {
+        match.goals.forEach((goal) => {
+          const scorer = goal.scorer;
+          // Initializing player's stats
+          if (!pointsCount[scorer]) {
+            pointsCount[scorer] = { goals: 0, assists: 0 };
+          }
+          // Incrementing goal count
+          pointsCount[scorer].goals += 1;
+          // If goal has assists, looping through them
+          if (goal.assist !== undefined && goal.assist.length > 0) {
+            goal.assist.forEach((assist) => {
+              // Ensuring that the assister is initialized
+              if (!pointsCount[assist]) {
+                pointsCount[assist] = { goals: 0, assists: 0 };
+              }
+              // Next incrementing assist count
+              pointsCount[assist].assists += 1;
+            });
+          }
+        });
+      });
+      const maxPoints = _(pointsCount)
+        .toPairs()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .maxBy(([_, stats]) => stats.goals + stats.assists);
+
+      if (!maxPoints) {
+        throw new GraphQLError('Max point scorer not found!');
+      }
+      const [name, points] = maxPoints;
+      return {
+        name: name,
+        goals: points.goals,
+        assists: points.assists,
+        total: points.goals + points.assists,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new GraphQLError('Failed to find max point scorer!');
+    }
+  }
+
   async getMostPenaltyMinutes() {
     try {
       const penaltiesCount: PenaltyMinutes = {};
       const matches = await Match.findAll();
+      // Constructing penaltiesCount object for each penalized player and summing their penalty minutes
       matches.forEach((match) => {
         if (match.penalties.length > 0) {
           match.penalties.forEach((penalty) => {
@@ -182,8 +280,8 @@ class MatchAPI {
       });
       const maxPenalties = _(penaltiesCount)
         .toPairs()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .maxBy(([_, penalties]) => penalties);
-      console.log(maxPenalties);
       if (!maxPenalties) {
         throw new GraphQLError('Leading penalty minutes not found!');
       }
@@ -193,7 +291,34 @@ class MatchAPI {
         name: leadingOffender,
         penaltyMinutes: penalties,
       };
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      throw new GraphQLError('Failed to get leading penalty minutes!');
+    }
+  }
+
+  async searchMatches(query: string) {
+    console.log(query);
+    try {
+      const matches = await Match.findAll({
+        // Executing search for possible matches in location, homeTeam, or awayTeam with query string
+        // Search is case-insensitive and includes partial matches
+        where: {
+          [Op.or]: [
+            { location: { [Op.iLike]: `%${query}` } },
+            { homeTeam: { [Op.iLike]: `%${query}` } },
+            { awayTeam: { [Op.iLike]: `%${query}` } },
+          ],
+        },
+      });
+      if (matches.length < 1) {
+        throw new GraphQLError(`Error searching with search string: ${query}`);
+      }
+      return matches;
+    } catch (error) {
+      console.log(error);
+      throw new GraphQLError('Failed to search for matches!');
+    }
   }
 }
 

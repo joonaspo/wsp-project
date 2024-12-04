@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "ESNext",
+    "target": "ES2022",
+    "module": "Preserve",
     "moduleResolution": "node",
     "outDir": "./build",
     "esModuleInterop": true,

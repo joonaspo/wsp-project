@@ -1,4 +1,4 @@
-import MatchAPI from './Datasources/matchesApi';
+import MatchAPI from './Datasources/matchesApi.js';
 
 export interface DataSources {
   MatchAPI: MatchAPI;
@@ -47,14 +47,6 @@ export interface IPlayer {
   sweaterNumber: number;
   position: string;
   teamId: string;
-}
-
-export type INewPlayer = Omit<IPlayer, 'id'>;
-
-export interface ILineUp {
-  forwards: IPlayer[];
-  defensemen: IPlayer[];
-  goalies: IPlayer[];
 }
 
 export interface IMatchEvent {
