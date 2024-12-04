@@ -5,7 +5,7 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 import sequelize from './src/Database/index.js';
 import { ApolloContext } from './src/types.js';
 import MatchAPI from './src/Datasources/matchesApi.js';
-import { PORT } from 'src/Utils/config.js';
+import { PORT } from './src/Utils/config.js';
 
 const server = new ApolloServer<ApolloContext>({
   typeDefs,
